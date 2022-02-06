@@ -1,17 +1,16 @@
 package application;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class App {
 
 	public static void main(String[] args) {
 		
-		File dir = new File("G:\\Learning\\Simplilearn\\Assessments\\locked-me\\src\\file_dir");
-		if (!dir.exists()) dir.mkdirs();
+		File base_dir = new File("G:\\Learning\\Simplilearn\\Assessments\\locked-me\\src\\locker_dir");
+		if (!base_dir.exists()) base_dir.mkdir();
 		
 		String choice = "";
 		Scanner sc = new Scanner(System.in);
@@ -30,22 +29,43 @@ public class App {
 			
 			switch(choice) {
 				case "1": {
-					System.out.println("Files residing in the directory:");
+					System.out.println("File names sorted in alphabetical order:");
 					System.out.println("******************************");
-					for(var f : dir.list()) {
-						System.out.println(f);
+					List<String> filenames = new ArrayList<>();
+					List<File> directories = new ArrayList<>();
+					
+					for(File f : base_dir.listFiles()) {
+						if(f.isDirectory()) directories.add(f);
+						else if(f.isFile()) filenames.add(f.getName());
 					}
+					
+					for(File f : directories) {
+						for(String filename : f.list()) {
+							filenames.add(filename);
+						}
+					}
+					
+					if(filenames.size() == 0) System.out.println("Empty directory!");
+					else filenames.stream().sorted().forEach(System.out::println);
+					
 					System.out.println();
 					break;
 				}
 				case "2": {
+					System.out.print("Enter the username: ");
+					String username = sc.nextLine();
+					File dir = new File(base_dir + "\\" + username);
+					if(!dir.exists()) {
+						dir.mkdir();
+						System.out.println(String.format("Directory for the user \"%s\" is created!", username));
+					}
 					System.out.print("Enter the filename with extension you want to add: ");
 					String filename = sc.nextLine();
-					File file = new File(dir + "\\" + filename);
+					File file = new File(dir.getAbsolutePath() + "\\" + filename);
 					if(!file.exists()) {
 						try {
 							file.createNewFile();
-							System.out.println("File created successfully...");
+							System.out.println("File added successfully...");
 						} catch(Exception e) {
 							System.out.println("Some error occured...");
 						}
@@ -56,40 +76,46 @@ public class App {
 					break;
 				}
 				case "3": {
-					System.out.print("Enter the filename with extension you want to delete: ");
-					String filename = sc.nextLine();
-					File file = new File(dir + "\\" + filename);
-					if(file.exists()) {
-						try {
-							file.delete();
-							System.out.println("File deleted successfully...");
-						} catch(Exception e) {
-							System.out.println("Some error occured...");
+					System.out.print("Enter the username: ");
+					String username = sc.nextLine();
+					File dir = new File(base_dir + "\\" + username);
+					if(dir.exists()) {
+						System.out.print("Enter the filename with extension you want to delete: ");
+						String filename = sc.nextLine();
+						File file = new File(dir.getAbsolutePath() + "\\" + filename);
+						if(file.exists()) {
+							try {
+								file.delete();
+								System.out.println("File deleted successfully...");
+							} catch(Exception e) {
+								System.out.println("Some error occured...");
+							}
 						}
+						else
+							System.out.println("File not present...");
+					} else {
+						System.out.println(String.format("Directory for the user \"%s\" does not exist!", username));
 					}
-					else
-						System.out.println("File not present...");
+					
 					System.out.println();
 					break;
 				}
 				case "4": {
-					System.out.print("Enter the filename with extension you want to search: ");
-					String filename = sc.nextLine();
-					File file = new File(dir + "\\" + filename);
-					if(file.exists()) {
-						System.out.println(file.getAbsolutePath());
-						System.out.println("*********************");
-						try {
-							Files
-								.readAllLines(Paths.get(file.getAbsolutePath()))
-								.stream()
-								.forEach(System.out::println);
-						} catch (IOException e) {
-							System.out.println("An error occured...");
-						}
+					System.out.print("Enter the username: ");
+					String username = sc.nextLine();
+					File dir = new File(base_dir + "\\" + username);
+					if(dir.exists()) {
+						System.out.print("Enter the filename with extension you want to search: ");
+						String filename = sc.nextLine();
+						File file = new File(dir.getAbsolutePath() + "\\" + filename);
+						if(file.exists()) 
+							System.out.println("File is present in the directory...");
+						else
+							System.out.println("File not present...");
+					} else {
+						System.out.println(String.format("Directory for the user \"%s\" does not exist!", username));
 					}
-					else
-						System.out.println("File not present...");
+
 					System.out.println();
 					break;
 				}
